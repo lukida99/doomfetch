@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+"""doomfetch - Doom sprites as ANSI art in your terminal.
+
+Meant as a logo source for fastfetch/neofetch, or as a greeting on shell
+startup. The CLI is intentionally compatible with pokemon-colorscripts so
+the command can be swapped one for one.
+"""
+
+import argparse
+import json
+import os
+import random
+import sys
+from pathlib import Path
+
+__version__ = "1.0.0"
+
+DATA_DIR = Path(os.environ.get(
+    "DOOMFETCH_DIR", Path.home() / ".local/share/doomfetch"))
+CSDIR = DATA_DIR / "colorscripts"
+INDEX = DATA_DIR / "index.json"
+
+
+def load_index():
+    if not INDEX.exists():
+        sys.exit(
+            f"doomfetch: {INDEX} not found.\n"
+            "No sprites have been built yet. From the repo, run:\n"
+            "    ./install.sh --wad /path/to/DOOM.WAD")
+    try:
+        return json.loads(INDEX.read_text())
+    except json.JSONDecodeError as exc:
+        sys.exit(f"doomfetch: {INDEX} is corrupt: {exc}")
+
+
+def show(name, index, no_title):
+    path = CSDIR / name
+    if not path.exists():
+        sys.exit(f"doomfetch: no sprite called '{name}'. "
+                 "Run 'doomfetch --list' to see what is available.")
+    if not no_title:
+        print(index.get(name, {}).get("title", name))
+    sys.stdout.write(path.read_text())
+
+
+def build_parser():
+    p = argparse.ArgumentParser(
+        prog="doomfetch",
+        description="Show sprites from Doom (1993) as ANSI art.",
+        epilog="example for fastfetch:\n"
+               "  doomfetch -r --category monster --no-title",
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    mode = p.add_mutually_exclusive_group()
+    mode.add_argument("-n", "--name", metavar="NAME",
+                      help="show one specific sprite")
+    mode.add_argument("-r", "--random", action="store_true",
+                      help="show a random sprite (the default)")
+    mode.add_argument("-l", "--list", action="store_true",
+                      help="list every available sprite")
+    p.add_argument("-c", "--category", metavar="CAT",
+                   help="restrict the random pick to one category")
+    p.add_argument("--names", metavar="A,B,C",
+                   help="restrict the random pick to these names")
+    p.add_argument("--no-title", action="store_true",
+                   help="do not print the name above the sprite")
+    p.add_argument("-v", "--version", action="version",
+                   version=f"doomfetch {__version__}")
+    return p
+
+
+def main(argv=None):
+    args = build_parser().parse_args(argv)
+    index = load_index()
+
+    if args.list:
+        width = max(len(n) for n in index)
+        for name, meta in sorted(index.items(),
+                                 key=lambda kv: (kv[1]["category"], kv[0])):
+            print(f"{name:<{width}}  {meta['category']:<8} {meta['title']}")
+        return 0
+
+    if args.name:
+        show(args.name, index, args.no_title)
+        return 0
+
+    pool = list(index)
+    if args.category:
+        pool = [n for n in pool if index[n]["category"] == args.category]
+        if not pool:
+            cats = sorted({m["category"] for m in index.values()})
+            sys.exit(f"doomfetch: category '{args.category}' is empty. "
+                     f"Available: {', '.join(cats)}")
+    if args.names:
+        wanted = {n.strip() for n in args.names.split(",") if n.strip()}
+        unknown = wanted - set(index)
+        if unknown:
+            sys.exit("doomfetch: not available: "
+                     f"{', '.join(sorted(unknown))}\n"
+                     "These most likely need a different IWAD - see "
+                     "'doomfetch --list'.")
+        pool = [n for n in pool if n in wanted]
+        if not pool:
+            sys.exit("doomfetch: --names and --category exclude each other.")
+
+    show(random.choice(pool), index, args.no_title)
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except BrokenPipeError:
+        sys.exit(0)
+    except KeyboardInterrupt:
+        sys.exit(130)

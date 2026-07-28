@@ -1,0 +1,29 @@
+// Example ~/.config/fastfetch/config.jsonc
+//
+// fastfetch cannot call an external command for "logo", so doomfetch runs as
+// the first command module instead. "key": "\n" removes the label column on
+// the left, which would otherwise sit next to the sprite.
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "type": "none"
+    },
+    "display": {
+        "separator": ""
+    },
+    "modules": [
+        {
+            "type": "command",
+            "text": "doomfetch -r --category monster --no-title",
+            "key": "\n"
+        },
+        "title",
+        "os",
+        "kernel",
+        "uptime",
+        "shell",
+        "terminal",
+        "cpu",
+        "memory"
+    ]
+}

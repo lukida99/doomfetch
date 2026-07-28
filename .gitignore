@@ -1,0 +1,14 @@
+# Never commit game content - see the "Licensing and assets" section in the
+# README. Sprites are extracted on the user's machine, not shipped here.
+*.wad
+*.WAD
+*.zip
+
+# Build output
+colorscripts/
+png/
+index.json
+source.json
+
+__pycache__/
+*.pyc
