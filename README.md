@@ -5,9 +5,9 @@ Sprites from **Doom (1993)** as ANSI art in your terminal — the Doom answer to
 Drop a Cacodemon next to your `fastfetch` output, or get a random Imp every
 time you open a shell.
 
-<img src="docs/screenshot.png" alt="doomfetch showing a Pain Elemental in a terminal" width="600">
+<img src="docs/screenshot.png" alt="doomfetch showing a Cacodemon in a terminal" width="520">
 
-*A Pain Elemental, straight out of `DOOM2.WAD`.*
+*A Cacodemon, straight out of `DOOM2.WAD`.*
 
 ## How it works
 
