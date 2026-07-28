@@ -5,12 +5,9 @@ Sprites from **Doom (1993)** as ANSI art in your terminal — the Doom answer to
 Drop a Cacodemon next to your `fastfetch` output, or get a random Imp every
 time you open a shell.
 
-![preview](docs/preview.png)
+<img src="docs/screenshot.png" alt="doomfetch showing a Pain Elemental in a terminal" width="600">
 
-> The preview above is rendered from **Freedoom** artwork, because this repo
-> ships no id Software assets — see [Licensing and assets](#licensing-and-assets).
-> Point the installer at your own `DOOM.WAD` and you get the original 1993
-> sprites instead.
+*A Pain Elemental, straight out of `DOOM2.WAD`.*
 
 ## How it works
 
@@ -71,6 +68,12 @@ Removing it again:
 Anything Doom-engine works, including `TNT.WAD` and `PLUTONIA.WAD`. Lumps that
 a given IWAD does not carry are skipped, and the installer tells you which
 ones were missing.
+
+Freedoom is the option that needs no purchase and no shareware licence. Its
+artwork is drawn from scratch, so it is recognisably its own thing rather than
+Doom's:
+
+![the same sprites rendered from Freedoom](docs/preview.png)
 
 ### Getting a WAD out of a GOG installer on Linux
 
