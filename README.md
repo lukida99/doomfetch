@@ -72,6 +72,28 @@ Anything Doom-engine works, including `TNT.WAD` and `PLUTONIA.WAD`. Lumps that
 a given IWAD does not carry are skipped, and the installer tells you which
 ones were missing.
 
+### Getting a WAD out of a GOG installer on Linux
+
+GOG hands you a Windows installer, but the WADs inside are plain files.
+[`innoextract`](https://constexpr.org/innoextract/) opens it without Wine:
+
+```bash
+innoextract -d out --include doom.wad --include doom2.wad setup_doom_plus_doom_ii_*.exe
+```
+
+Note that `--include` matches file names literally — a `*.wad` glob silently
+matches nothing. Run `innoextract -l setup_*.exe` first if you are unsure what
+is in there.
+
+The *DOOM + DOOM II* re-release ships each IWAD twice: `doom2.wad` at the top
+level is the 2024 KEX build, and `dosdoom/base/doom2/DOOM2.WAD` is the
+untouched DOS original. Both yield the full sprite set, but the re-release
+replaced the red cross on the medikit, stimpack and berserk pack with a green
+one for trademark reasons. If you want the 1994 look, take the `dosdoom` copy.
+
+Dropping the WAD in `~/.local/share/games/doom/` means `./install.sh` finds it
+on its own from then on.
+
 ## Usage
 
 ```bash
