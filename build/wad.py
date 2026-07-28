@@ -40,6 +40,7 @@ class Wad:
         self.kind = magic.decode()
         self.lumps = {}
         self.order = []
+        self._sprites = None
         for i in range(count):
             base = diroff + i * 16
             if base + 16 > len(self.data):
@@ -75,7 +76,36 @@ class Wad:
                 if not n.endswith("_START") and not n.endswith("_END")]
 
     def sprite_names(self):
-        return self.between("S_START", "S_END")
+        if self._sprites is None:
+            self._sprites = self.between("S_START", "S_END")
+        return self._sprites
+
+
+def resolve_sprite(wad, ref):
+    """Find the lump that actually holds sprite `ref` (e.g. "TROOA1").
+
+    A lump may serve two frame/rotation pairs at once by carrying an eight
+    character name: "SKELA1D1" is frame A rotation 1 *and* frame D rotation 1,
+    and "POSSA2A8" is rotation 2 plus rotation 8 drawn mirrored. Freedoom and
+    plenty of PWADs rely on this, so looking for the plain six character name
+    alone would miss them.
+
+    Returns (lump_name, mirrored) or (None, False).
+    """
+    if ref in wad:
+        return ref, False
+    if len(ref) != 6:
+        return None, False
+
+    prefix, fr = ref[:4], ref[4:6]
+    for name in wad.sprite_names():
+        if not name.startswith(prefix):
+            continue
+        if name[4:6] == fr:
+            return name, False
+        if len(name) == 8 and name[6:8] == fr:
+            return name, True          # second pair is stored mirrored
+    return None, False
 
 
 def decode_lump(raw, palette):

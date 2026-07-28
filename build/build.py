@@ -16,7 +16,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from render import DEFAULTS, to_ansi          # noqa: E402
 from sprites import SPRITES                   # noqa: E402
-from wad import Wad, WadError, decode_lump     # noqa: E402
+from PIL import ImageOps                       # noqa: E402
+from wad import (Wad, WadError, decode_lump,   # noqa: E402
+                 resolve_sprite)
 
 DEFAULT_OUT = Path.home() / ".local/share/doomfetch"
 
@@ -63,13 +65,16 @@ def main(argv=None):
 
     index, missing, broken = {}, [], []
     for name, (lump, title, category, since) in sorted(SPRITES.items()):
-        if lump not in wad:
+        actual, mirrored = resolve_sprite(wad, lump)
+        if actual is None:
             missing.append(name)
             continue
-        img = decode_lump(wad.get(lump), palette)
+        img = decode_lump(wad.get(actual), palette)
         if img is None:
             broken.append(name)
             continue
+        if mirrored:
+            img = ImageOps.mirror(img)
         (csdir / name).write_text(
             to_ansi(img, max_rows=args.max_rows, max_cols=args.max_cols,
                     max_scale=args.max_scale))
